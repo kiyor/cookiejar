@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -100,14 +99,11 @@ func New(o *Options, fromFile ...string) (*Jar, error) {
 	jar.localFile = localFile
 	if _, err := os.Stat(localFile); err == nil {
 		b, err := ioutil.ReadFile(localFile)
-		if err != nil {
-			log.Println(err.Error())
-		} else {
+		if err == nil {
 			err = json.Unmarshal(b, &jar.entries)
 			if err != nil {
 				return jar, err
 			}
-			log.Println(string(b))
 		}
 	}
 	return jar, nil
