@@ -186,7 +186,7 @@ func (j *Jar) saveToFile() error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(j.localFile, b, 0644)
+	return ioutil.WriteFile(j.localFile, b, 0600)
 }
 
 // cookies is like Cookies but takes the current time as a parameter.
