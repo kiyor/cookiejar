@@ -6,9 +6,10 @@
 package cookiejar
 
 import (
-	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -97,10 +98,9 @@ func New(o *Options, fromFile ...string) (*Jar, error) {
 	}
 	jar.localFile = localFile
 	if _, err := os.Stat(localFile); err == nil {
-		f, err := os.OpenFile(localFile, os.O_RDONLY, 0600)
+		b, err := ioutil.ReadFile(localFile)
 		if err == nil {
-			dec := gob.NewDecoder(f)
-			err = dec.Decode(&jar.entries)
+			err = json.Unmarshal(b, &jar.entries)
 			if err != nil {
 				return jar, err
 			}
@@ -182,12 +182,11 @@ func (j *Jar) Cookies(u *url.URL) (cookies []*http.Cookie) {
 func (j *Jar) saveToFile() error {
 	j.mu.Lock()
 	defer j.mu.Unlock()
-	f, err := os.OpenFile(j.localFile, os.O_CREATE|os.O_WRONLY, 0600)
+	b, err := json.MarshalIndent(j.entries, "", "  ")
 	if err != nil {
 		return err
 	}
-	enc := gob.NewEncoder(f)
-	return enc.Encode(j.entries)
+	return ioutil.WriteFile(j.localFile, b, 0600)
 }
 
 // cookies is like Cookies but takes the current time as a parameter.
